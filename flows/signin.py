@@ -5,7 +5,6 @@ Login script - Detect and click login button
 import asyncio
 from playwright.async_api import async_playwright
 
-
 async def detect_and_click_login_button(page):
     """
     Detect login button and click it

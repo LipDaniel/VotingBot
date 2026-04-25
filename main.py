@@ -4,9 +4,7 @@ Sample Playwright script
 """
 import asyncio
 from playwright.async_api import async_playwright
-
-from flows.signin import detect_and_click_login_button
-
+from flows.signup import sign_up_flow
 
 async def main():
     async with async_playwright() as p:
@@ -17,8 +15,7 @@ async def main():
         # Navigate to a website
         await page.goto("https://events.elle.vn")
         
-        
-        await detect_and_click_login_button(page)
+        await sign_up_flow(page)
         # Keep browser open for 30 seconds
         await page.wait_for_timeout(30000)
         # Close browser
