@@ -1,5 +1,7 @@
 import os
 import http.client
+import json
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -15,10 +17,51 @@ def get_temp_email():
         'Content-Type': "application/json"
     }
 
-    conn.request("GET", "/random?type=alias&password=abc123", headers=headers)
+    conn.request("GET", "/random?type=alias", headers=headers)
 
     res = conn.getresponse()
     data = res.read()
+    parsed_data = json.loads(data.decode("utf-8"))
+    print(parsed_data)
+    return parsed_data['email'], parsed_data['timestamp']
 
-    print(data.decode("utf-8"))
-    return data
+def get_email_mid(email, timestamp):
+    conn = http.client.HTTPSConnection(base_url)
+
+    headers = {
+        'x-rapidapi-key': api_key,
+        'x-rapidapi-host': base_url,
+        'Content-Type': "application/json"
+    }
+    conn.request("GET", "/inbox?email=" + email + "&timestamp=" + str(timestamp), headers=headers)
+    res = conn.getresponse()
+    data = res.read()
+    parsed_data = json.loads(data.decode("utf-8"))
+    print(parsed_data)
+    messages = parsed_data['messages']
+    last_message = messages[len(messages) - 1]
+    print('last_message: ', last_message)
+
+    return last_message['mid']
+
+def get_link_via_message(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
+    for a in soup.find_all("a"):
+        if "Xác nhận" in a.get_text():
+            return a["href"]
+
+def get_full_email_last_message(email, mid):
+    conn = http.client.HTTPSConnection(base_url)
+
+    headers = {
+        'x-rapidapi-key': api_key,
+        'x-rapidapi-host': base_url,
+        'Content-Type': "application/json"
+    }
+    conn.request("GET", "/message?email=" + email + "&mid=" + str(mid), headers=headers)
+    res = conn.getresponse()
+    data = res.read()
+    parsed_data = json.loads(data.decode("utf-8"))
+    get_link_via_message(parsed_data['body'])
+
+    return parsed_data['body']
