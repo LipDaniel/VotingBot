@@ -4,6 +4,7 @@ Sample Playwright script
 """
 import asyncio
 from playwright.async_api import async_playwright
+from flows.services import get_temp_email
 from flows.signup import sign_up_flow
 from twocaptcha import TwoCaptcha
 import os
@@ -21,8 +22,9 @@ async def main():
         page = await browser.new_page()
         
         # Navigate to a website
-        await page.goto("https://events.elle.vn")
-        
+        # await page.goto("https://events.elle.vn")
+        get_temp_email()
+        return
         await sign_up_flow(page)
         current_url = page.url
         print(f"URL hiện tại là: {current_url}")
