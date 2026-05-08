@@ -2,8 +2,6 @@
 """
 Login script - Detect and click login button
 """
-import asyncio
-from playwright.async_api import async_playwright
 
 async def detect_and_click_login_button(page):
     """
@@ -26,3 +24,16 @@ async def detect_and_click_login_button(page):
     except Exception as e:
         print(f"✗ Error: {e}")
         return False
+
+async def sign_in_flow(page, temp_email):
+    """
+    Detect login button and click it
+    """
+    try:
+        await detect_and_click_login_button(page)
+        await page.fill('input[name="identifier"]', temp_email)
+        await page.fill('input[name="password"]', "test@gmail.com")
+    except Exception as e:
+        print(f"✗ Error: {e}")
+        return False
+

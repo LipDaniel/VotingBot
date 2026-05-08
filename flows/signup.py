@@ -1,7 +1,5 @@
 
 #!/usr/bin/env python3
-import asyncio
-from playwright.async_api import async_playwright
 from .signin import detect_and_click_login_button
 
 async def sign_up_flow(page, temp_email):
