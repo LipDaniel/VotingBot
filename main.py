@@ -4,6 +4,7 @@ Sample Playwright script
 """
 import asyncio
 from playwright.async_api import async_playwright
+from app_window import open_app_window
 from flows.services import get_temp_email, get_email_mid, get_full_email_last_message, get_link_via_message
 from flows.signup import sign_up_flow
 from flows.signin import sign_in_flow
@@ -23,38 +24,38 @@ async def main():
         print('temp_email: ', temp_email)
         print('timestamp: ', timestamp)
 
-        # Sign up flow
+        # SIGN UP
         await sign_up_flow(page, temp_email)
         current_url = page.url
         print(f"URL hiện tại là: {current_url}")
         
-        # Bypass turnstile captcha
+        # BYPASS CAPTCHA
         await bypass_captcha(current_url, page)
 
-        # wait for captcha solved and send sign-up email to temp_email
+        # WAIT
         await page.wait_for_timeout(30000)
 
-        # Get email mid
+        # GET EMAIL MID
         mid = get_email_mid(temp_email, timestamp)
         print('mid: ' + str(mid))
 
-        # Get full email last message
+        # GET FULL EMAIL LAST MESSAGE
         message = get_full_email_last_message(temp_email, mid)
         print('message: ' + str(message))
 
-        # Get finished signed up link and go to it
+        # GET VERIFY LINK AND GO TO IT
         link = get_link_via_message(message)
         print('link: ', link)
         await page.goto(link)
 
-        # Sign in flow
+        # SIGN IN
         await sign_in_flow(page, temp_email)
         current_url = page.url
 
-         # Bypass turnstile captcha
+        # BYPASS CAPTCHA
         await bypass_captcha(current_url, page)
 
-        # wait for captcha solved
+        # WAIT
         await page.wait_for_timeout(15000)
 
         # Get in the main page after signed in
@@ -72,4 +73,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    data = open_app_window()
+    if data:
+        print(data)
+        asyncio.run(main())

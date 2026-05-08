@@ -2,3 +2,4 @@ playwright
 dotenv
 2captcha-python
 requests
+bs4
