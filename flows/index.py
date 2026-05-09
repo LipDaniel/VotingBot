@@ -64,9 +64,8 @@ async def run_playwright_flow(celebrity_name, index, total_run):
                         if attempt < max_retries - 1:
                             await page.wait_for_timeout(2000)
                 if(mid == None):
-                    print('*' * 100)
-                    print(f'>>> GET MAIL ĐĂNG KÝ THẤT BẠI SAU {max_retries + 1} LẦN THỬ. RUN {index} THẤT BẠI!')
-                    print('>>> EXITING ...')
+                    print(f'>>>>>> GET MAIL ĐĂNG KÝ THẤT BẠI SAU {max_retries + 1} LẦN THỬ. RUN {index} THẤT BẠI!')
+                    print('>>>>>> EXITING ...')
                 else:
                     # GET FULL EMAIL LAST MESSAGE
                     message = get_full_email_last_message(temp_email, mid)
