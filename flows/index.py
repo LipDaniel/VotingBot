@@ -10,6 +10,13 @@ from flows.services import (
 from flows.signin import sign_in_flow
 from flows.signup import sign_up_flow
 
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    category=RuntimeWarning,
+    message=r"coroutine 'Locator.click' was never awaited"
+)
 
 async def run_playwright_flow(celebrity_name, index, total_run):
     async with async_playwright() as p:
@@ -36,9 +43,7 @@ async def run_playwright_flow(celebrity_name, index, total_run):
 
             # BYPASS CAPTCHA
             isBypassed = await bypass_captcha(current_url, page)
-            if (isBypassed == False):
-                print(f'>>> BYPASS CAPTCHA THẤT BẠI. RUN {index} THẤT BẠI!')
-            else:
+            if (isBypassed == True):
                 for attempt in range(max_retries + 1):
                     print(f">>>>>> LẦN THỬ {attempt + 1}: CLICK NÚT SUBMIT GỬI VỀ INBOX---")
                     await click_fake_submit(page)
@@ -98,7 +103,8 @@ async def vote(page, celebrity_name, index, total_run):
     card = page.locator("article").filter(
         has=page.locator("h3", has_text=celebrity_name)
     )
-    card.locator("button", has_text="Bình chọn").click()
+    await page.wait_for_timeout(5000)
+    button = card.locator("button", has_text="Bình chọn").first
+    await button.evaluate("(el) => el.click()")
     print(f"✔️ ✔️ ✔️ VOTED FOR {celebrity_name.upper()} | COMPLETED {index}/{total_run}")
-    print('=' * 100)
     
