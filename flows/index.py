@@ -102,7 +102,6 @@ async def vote(page, celebrity_name, index, total_run):
     card = page.locator("article").filter(
         has=page.locator("h3", has_text=celebrity_name)
     )
-    await page.wait_for_timeout(5000)
     button = card.locator("button", has_text="Bình chọn").first
     await button.evaluate("(el) => el.click()")
     print(f"✔️ ✔️ ✔️ VOTED FOR {celebrity_name.upper()} | COMPLETED {index}/{total_run}")
