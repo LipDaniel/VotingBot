@@ -42,7 +42,6 @@ def get_email_mid(email, timestamp):
     if (len(messages) == 0):
         return None
     last_message = messages[len(messages) - 1]
-    print('last_message: ', last_message)
 
     return last_message['mid']
 
