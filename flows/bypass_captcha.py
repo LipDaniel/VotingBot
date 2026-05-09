@@ -15,9 +15,6 @@ async def bypass_captcha(current_url, page):
             url=current_url,
         )
 
-        if result:
-            print('Solved turnstile Captcha success!')
-
         await page.evaluate(f"""
             (token) => {{
                 document.querySelectorAll('input[name="cf-turnstile-response"]').forEach(el => el.value = token);
@@ -53,8 +50,6 @@ async def bypass_captcha(current_url, page):
                 }}
             """, result['code']) # type: ignore
 
-        print("🛠️ Đang cố gắng bypass State bảo mật...")
-        
         await page.evaluate(f"""
             (token) => {{
                 // Hàm tìm mọi hàm có vẻ là callback
@@ -84,15 +79,13 @@ async def bypass_captcha(current_url, page):
                 }}
             }}
         """, result['code']) # type: ignore
-        print('Bypass Captcha thành công!')
+        print('>>> BYPASS CAPTCHA THÀNH CÔNG!')
         return True
     except Exception as e:
-        print("🚨 Có Lỗi xảy ra khi bypass Captcha: ", e)
         return False
 
 
 async def click_fake_submit(page):
-    print("🔨 Tạo nút giả để kích hoạt logic Form...")
     await page.evaluate("""
         () => {
             const form = document.querySelector('form');

@@ -14,7 +14,7 @@ from flows.signup import sign_up_flow
 async def run_playwright_flow(celebrity_name, index, total_run):
     async with async_playwright() as p:
         print('=' * 100)
-        print(f"RUN {index + 1}/{total_run}: START VOTING FOR {celebrity_name.upper()}")
+        print(f"RUN {index}/{total_run}: START VOTING FOR {celebrity_name.upper()}")
 
         max_retries = 4  # Số lần thử click lại submit
         mid = None
@@ -25,7 +25,7 @@ async def run_playwright_flow(celebrity_name, index, total_run):
             # Navigate to a website
             await page.goto("https://events.elle.vn")
 
-            print(f'☑️ STEP 1: GENERATED TEMP EMAIL ... {temp_email}')
+            print(f'☑️ STEP 1: GENERATED TEMP EMAIL ...')
             temp_email, timestamp = get_temp_email()
             print(f'>>> EMAIL: {temp_email}')
 
@@ -37,7 +37,7 @@ async def run_playwright_flow(celebrity_name, index, total_run):
             # BYPASS CAPTCHA
             isBypassed = await bypass_captcha(current_url, page)
             if (isBypassed == False):
-                print(f'>>> BYPASS CAPTCHA THẤT BẠI. RUN {index + 1} THẤT BẠI!')
+                print(f'>>> BYPASS CAPTCHA THẤT BẠI. RUN {index} THẤT BẠI!')
             else:
                 for attempt in range(max_retries + 1):
                     print(f">>>>>> LẦN THỬ {attempt + 1}: CLICK NÚT SUBMIT GỬI VỀ INBOX---")
@@ -60,7 +60,7 @@ async def run_playwright_flow(celebrity_name, index, total_run):
                             await page.wait_for_timeout(2000)
                 if(mid == None):
                     print('*' * 100)
-                    print(f'>>> GET MAIL ĐĂNG KÝ THẤT BẠI SAU {max_retries + 1} LẦN THỬ. RUN {index + 1} THẤT BẠI!')
+                    print(f'>>> GET MAIL ĐĂNG KÝ THẤT BẠI SAU {max_retries + 1} LẦN THỬ. RUN {index} THẤT BẠI!')
                     print('>>> EXITING ...')
                 else:
                     # GET FULL EMAIL LAST MESSAGE
@@ -99,6 +99,6 @@ async def vote(page, celebrity_name, index, total_run):
         has=page.locator("h3", has_text=celebrity_name)
     )
     card.locator("button", has_text="Bình chọn").click()
-    print(f"✔️ ✔️ ✔️ VOTED FOR {celebrity_name.upper()} | COMPLETED {index + 1}/{total_run}")
+    print(f"✔️ ✔️ ✔️ VOTED FOR {celebrity_name.upper()} | COMPLETED {index}/{total_run}")
     print('=' * 100)
     

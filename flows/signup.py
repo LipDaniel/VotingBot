@@ -13,7 +13,6 @@ async def sign_up_flow(page, temp_email):
 async def go_to_signup_page(page, temp_email):
     try:
         username = temp_email.split("@")[0]
-        print("✓ Sign up button clicked!")
         await page.get_by_text("Tạo tài khoản").click()
         await page.fill('input[name="username"]', username)
         await page.fill('input[name="email"]', temp_email)
