@@ -22,7 +22,6 @@ def get_temp_email():
     res = conn.getresponse()
     data = res.read()
     parsed_data = json.loads(data.decode("utf-8"))
-    print(parsed_data)
     return parsed_data['email'], parsed_data['timestamp']
 
 def get_email_mid(email, timestamp):
@@ -37,7 +36,6 @@ def get_email_mid(email, timestamp):
     res = conn.getresponse()
     data = res.read()
     parsed_data = json.loads(data.decode("utf-8"))
-    print(parsed_data)
     messages = parsed_data['messages']
     if (len(messages) == 0):
         return None

@@ -11,13 +11,13 @@ from flows.signin import sign_in_flow
 from flows.signup import sign_up_flow
 
 
-async def run_playwright_flow(celebrity_name, run_number):
+async def run_playwright_flow(celebrity_name, index, total_run):
     async with async_playwright() as p:
+        print('=' * 100)
+        print(f"RUN {index + 1}/{total_run}: START VOTING FOR {celebrity_name.upper()}")
+
         max_retries = 4  # Số lần thử click lại submit
         mid = None
-        print('=' * 100)
-        print(f"Run {run_number}: start voting for {celebrity_name}")
-
         browser = await p.chromium.launch(headless=False)
         page = await browser.new_page()
 
@@ -25,59 +25,53 @@ async def run_playwright_flow(celebrity_name, run_number):
             # Navigate to a website
             await page.goto("https://events.elle.vn")
 
-            print('=' * 100)
-            print('getting temp email ...')
+            print(f'☑️ STEP 1: GENERATED TEMP EMAIL ... {temp_email}')
             temp_email, timestamp = get_temp_email()
+            print(f'>>> EMAIL: {temp_email}')
 
             # SIGN UP
+            print('☑️ STEP 2: BẮT ĐẦU ĐĂNG KÝ ...')
             await sign_up_flow(page, temp_email)
             current_url = page.url
-            print(f"Current URL: {current_url}")
 
-            print('=' * 100)
-            print('Starting sign up flow ...')
             # BYPASS CAPTCHA
             isBypassed = await bypass_captcha(current_url, page)
             if (isBypassed == False):
-                print('*' * 100)
-                print(f'Bypass captcha thất bại. Run {run_number} thất bại!')
+                print(f'>>> BYPASS CAPTCHA THẤT BẠI. RUN {index + 1} THẤT BẠI!')
             else:
                 for attempt in range(max_retries + 1):
-                    print(f"--- Lần thử {attempt + 1}: click nút submit đợi email gửi về inbox---")
+                    print(f">>>>>> LẦN THỬ {attempt + 1}: CLICK NÚT SUBMIT GỬI VỀ INBOX---")
                     await click_fake_submit(page)
                     check_duration = 30
 
-                    print(f"chờ: {check_duration} giây ...")
+                    print(f">>>>>> CHỜ: {check_duration} GIẤY ...")
                     await page.wait_for_timeout(check_duration * 1000)
 
                     # GET EMAIL MID
                     mid = get_email_mid(temp_email, timestamp)
-                    print("mid: " + str(mid))
+                    print(">>>>>> MID: " + str(mid))
 
                     if mid:
-                        print(f"Thành công! Lấy được mid: {mid}")
+                        print(f">>>>>> THÀNH CÔNG! LẤY ĐƯỢC MID: {mid}")
                         break
                     else:
-                        print(f"Lần thử {attempt + 1} thất bại: Không nhận được mail.")
-                        # Nếu chưa phải lần thử cuối, có thể F5 nhẹ hoặc đợi 1 chút trước khi click lại
+                        print(f">>>>>> LẦN THỬ {attempt + 1} THẤT BẠI: KHÔNG NHẬN ĐƯỢC MAIL.")
                         if attempt < max_retries - 1:
                             await page.wait_for_timeout(2000)
                 if(mid == None):
                     print('*' * 100)
-                    print(f'Get mail đăng ký thất bại sau {max_retries + 1} lần thử. Run {run_number} thất bại!')
-                    print('exiting ...')
+                    print(f'>>> GET MAIL ĐĂNG KÝ THẤT BẠI SAU {max_retries + 1} LẦN THỬ. RUN {index + 1} THẤT BẠI!')
+                    print('>>> EXITING ...')
                 else:
                     # GET FULL EMAIL LAST MESSAGE
                     message = get_full_email_last_message(temp_email, mid)
 
                     # GET VERIFY LINK AND GO TO IT
                     link = get_link_via_message(message)
-                    print("link hoàn thành đăng ký: ", link)
                     await page.goto(link)
-                    print('Sign up flow completed!')
+                    print('>>> ĐĂNG KÝ HOÀN THÀNH, ĐANG CHỜ EMAIL XÁC NHẬN ...')
 
-                    print('=' * 100)
-                    print('Starting sign in flow ...')
+                    print('☑️ STEP 3: BẮT ĐẦU ĐĂNG NHẬP ...')
                     await sign_in_flow(page, temp_email)
                     current_url = page.url
 
@@ -87,19 +81,24 @@ async def run_playwright_flow(celebrity_name, run_number):
                     # WAIT
                     await page.wait_for_timeout(15000)
 
-                    print('Sign in flow completed!')
-
-                    print('=' * 100)
-                    print('Starting to get in the voting page after signed in ...')
+                    print('☑️ STEP 4: BẮT ĐẦU VOTE ...')
                     # Get in the main page after signed in
                     await page.locator("a", has_text="Vào trang 2026").click()
                     await page.wait_for_url("**/elle-beauty-awards-2026")
                     await page.locator("a").filter(has_text="Nhân vật").first.click()
                     await page.wait_for_url("**/nhan-vat")
-
-                    print('=' * 100)
-                    print('Voting...')
-                    print('Voting completed!')
-                    print(f"Run {run_number}: reached voting page for {celebrity_name}")
+                    await vote(page, celebrity_name, index, total_run)
+                    await page.wait_for_timeout(5000)
+                    await browser.close()
         finally:
             await browser.close()
+
+
+async def vote(page, celebrity_name, index, total_run):
+    card = page.locator("article").filter(
+        has=page.locator("h3", has_text=celebrity_name)
+    )
+    card.locator("button", has_text="Bình chọn").click()
+    print(f"✔️ ✔️ ✔️ VOTED FOR {celebrity_name.upper()} | COMPLETED {index + 1}/{total_run}")
+    print('=' * 100)
+    

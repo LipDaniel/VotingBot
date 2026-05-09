@@ -193,4 +193,3 @@ def open_app_window(on_submit=None):
 
 if __name__ == "__main__":
     values = open_app_window()
-    print(values)

@@ -10,7 +10,7 @@ from flows.index import run_playwright_flow
 
 async def run_vote_loop(celebrity_name, amount):
     for run_number in range(1, amount + 1):
-        await run_playwright_flow(celebrity_name, run_number)
+        await run_playwright_flow(celebrity_name, run_number, amount)
 
 
 async def main(data):

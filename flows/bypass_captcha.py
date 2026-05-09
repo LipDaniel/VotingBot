@@ -24,6 +24,35 @@ async def bypass_captcha(current_url, page):
             }}
         """, result['code']) # type: ignore
 
+        await page.evaluate(f"""
+            (token) => {{
+                // Hàm tìm mọi hàm có vẻ là callback
+                const triggerAllCallbacks = () => {{
+                    // Tìm trong window._cf_chl_opt
+                    if (window._cf_chl_opt && window._cf_chl_opt.callback) {{
+                        const cb = window[window._cf_chl_opt.callback];
+                        if (typeof cb === 'function') cb(token);
+                    }}
+
+                    // Tìm tất cả các div turnstile và ép gọi callback từ data-attribute
+                    document.querySelectorAll('.cf-turnstile').forEach(el => {{
+                        const cbName = el.getAttribute('data-callback');
+                        if (cbName && window[cbName]) window[cbName](token);
+                    }});
+                }};
+
+                triggerAllCallbacks();
+
+                // Nếu nút vẫn chưa hiện, ta sẽ ép Form phải chạy bằng cách tạo Event "submit"
+                const form = document.querySelector('form');
+                if (form) {{
+                    // Tạo một event submit giả lập nhưng có thuộc tính để bypass các bộ lọc
+                    const event = new Event('submit', {{ bubbles: true, cancelable: true }});
+                    form.dispatchEvent(event);
+                    console.log("🚀 Đã gửi Event Submit giả lập!");
+                }}
+            """, result['code']) # type: ignore
+
         print("🛠️ Đang cố gắng bypass State bảo mật...")
         
         await page.evaluate(f"""
