@@ -74,7 +74,7 @@ def get_email_from(parsed_data):
         or SMTP_EMAIL
     )
 
-def forward_email(subject, sender, body):
+def forward_email(subject, sender, body, run_number_prefix):
     msg = EmailMessage()
 
     msg["Subject"] = subject
@@ -91,9 +91,9 @@ def forward_email(subject, sender, body):
         smtp.login(SMTP_EMAIL, SMTP_PASSWORD)
         smtp.send_message(msg)
 
-    print(">>> EMAIL FORWARDED!")
+    print(f"{run_number_prefix} >>> EMAIL FORWARDED!")
 
-def get_full_email_last_message(email, mid):
+def get_full_email_last_message(email, mid, run_number_prefix):
     conn = http.client.HTTPSConnection(base_url)
 
     headers = {
@@ -121,6 +121,6 @@ def get_full_email_last_message(email, mid):
     subject = get_email_subject(parsed_data)
     sender = get_email_from(parsed_data)
     
-    forward_email(subject, sender, body)
+    forward_email(subject, sender, body, run_number_prefix)
 
     return body

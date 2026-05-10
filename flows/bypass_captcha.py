@@ -8,7 +8,7 @@ api_key = os.environ.get("TWOCAPTCHA_API_KEY")
 
 solver = TwoCaptcha(api_key)
 
-async def bypass_captcha(current_url, page):
+async def bypass_captcha(current_url, page, run_number_prefix):
     try: 
         result = solver.turnstile(
             sitekey='0x4AAAAAACnJ4TeSqCnnHCkt',
@@ -51,7 +51,7 @@ async def bypass_captcha(current_url, page):
             }}
         """, result['code']) # type: ignore
         
-        print('>>> BYPASS CAPTCHA THÀNH CÔNG!')
+        print(f'{run_number_prefix} >>> BYPASS CAPTCHA THÀNH CÔNG!')
         
         return True
     except Exception as e:
